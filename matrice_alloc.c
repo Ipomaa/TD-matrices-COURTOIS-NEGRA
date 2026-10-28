@@ -65,7 +65,7 @@ MatErreur mat_allouer(Matrice *res, int nb_lignes, int nb_colonnes)
 
     /* (1.e) À COMPLÉTER : maintenant que tout a réussi, remplir *res
      *       (trois affectations : coef, nb_lignes, nb_colonnes)
-     *       et renvoyer MAT_OK.                                        */
+     *       et renvoyer MAT_OK.                                       */
 
     res->coef = coef;
     res->nb_lignes = nb_lignes;
