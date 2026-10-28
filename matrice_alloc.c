@@ -80,7 +80,7 @@ void mat_detruire(Matrice *m)
         return;
 
     if (m->coef != NULL){
-        for (i=0; nb_lignes - 1; i++){
+        for (i=0; i < m->nb_lignes; i++){
             free(m->coef[i]);
         }
 
