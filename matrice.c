@@ -37,6 +37,11 @@ int mat_est_valide(const Matrice *m)
      *       Une seule instruction suffit :
      *         return m != NULL && m->coef != NULL && ... ;            */
 
-    return m != NULL && m->coef != NULL && 1 <= m->nb_lignes <= MAT_DIM_MAX && 1 <= m->nb_colonnes <= MAT_DIM_MAX;   
+    return m != NULL 
+        && m->coef != NULL 
+        && 1 <= m->nb_lignes 
+        && m->nb_lignes <= MAT_DIM_MAX 
+        && 1 <= m->nb_colonnes 
+        && m->nb_colonnes <= MAT_DIM_MAX;   
         
 }
