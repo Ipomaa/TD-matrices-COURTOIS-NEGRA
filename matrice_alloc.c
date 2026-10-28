@@ -49,25 +49,29 @@ MatErreur mat_allouer(Matrice *res, int nb_lignes, int nb_colonnes)
     if (coef == NULL)
         return MAT_ERR_ALLOCATION;
 
-    /* (1.d) À COMPLÉTER : allouer chaque ligne.
-     *   for (int i = 0; i < nb_lignes; i++) {
-     *       coef[i] = mat_calloc(..., ...);    // nb_colonnes entiers
-     *       if (coef[i] == NULL) {
-     *           for (int k = i - 1; k >= 0; k--)  // lignes déjà
-     *               free(coef[k]);                // obtenues
-     *           free(coef);                       // puis le tableau
-     *           return MAT_ERR_ALLOCATION;
-     *       }
-     *   }                                                             */
 
-    (void)nb_colonnes;   /* ligne provisoire : à supprimer en (1.d) */
+    
+     for (int i = 0; i < nb_lignes; i++) {
+        coef[i] = mat_calloc((size_t)nb_colonnes, sizeof *coef[i]);    // nb_colonnes entiers
+        if (coef[i] == NULL) {
+            for (int k = i - 1; k >= 0; k--)  // lignes déjà
+                free(coef[k]);                // obtenues
+            free(coef);                       // puis le tableau
+            return MAT_ERR_ALLOCATION;
+        }
+    }                                                             
+
+    
 
     /* (1.e) À COMPLÉTER : maintenant que tout a réussi, remplir *res
      *       (trois affectations : coef, nb_lignes, nb_colonnes)
-     *       et renvoyer MAT_OK.                                        */
+     *       et renvoyer MAT_OK.                                       */
 
-    free(coef);                  /* ligne provisoire : à supprimer en (1.e) */
-    return MAT_ERR_LECTURE;      /* ligne provisoire : à remplacer en (1.e) */
+    res->coef = coef;
+    res->nb_lignes = nb_lignes;
+    res->nb_colonnes = nb_colonnes;
+    return MAT_OK;
+    
 }
 
 void mat_detruire(Matrice *m)
@@ -75,9 +79,15 @@ void mat_detruire(Matrice *m)
     if (m == NULL)                 /* FOURNI */
         return;
 
-    /* (1.f) À COMPLÉTER : si m->coef n'est pas NULL :
-     *         - libérer chaque ligne m->coef[i], i de 0 à nb_lignes - 1 ;
-     *         - PUIS libérer le tableau m->coef lui-même.              */
+    if (m->coef != NULL){
+        for (i=0; nb_lignes - 1; i++){
+            free(m->coef[i]);
+        }
+
+        free(m->coef);
+    }
+
+    
 
 
     *m = MATRICE_VIDE;   /* FOURNI : état sûr après destruction (R6) */
