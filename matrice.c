@@ -15,6 +15,8 @@ const char *mat_message_erreur(MatErreur code)
     case MAT_ERR_LECTURE:     return "erreur de lecture du fichier";
     case MAT_ERR_FORMAT:      return "fichier mal formé";
     case MAT_ERR_ECRITURE:    return "erreur d'écriture du fichier";
+    case MAT_ERR_DIMENSION:   return "mauvaise dimension";
+    case MAT_ERR_DEPASSEMENT: return "dépassement de taille";
 
     /* (1.a) À COMPLÉTER : les cas MAT_ERR_DIMENSIONS et
      *       MAT_ERR_DEPASSEMENT, sur le même modèle que ci-dessus. */
@@ -35,6 +37,6 @@ int mat_est_valide(const Matrice *m)
      *       Une seule instruction suffit :
      *         return m != NULL && m->coef != NULL && ... ;            */
 
-    (void)m;      /* ligne provisoire : à supprimer en (1.b) */
-    return 0;     /* ligne provisoire : à remplacer en (1.b) */
+    return m != NULL && m->coef != NULL && 1 <= m->nb_lignes <= MAT_DIM_MAX && 1 <= m->nb_colonnes <= MAT_DIM_MAX;   
+        
 }
