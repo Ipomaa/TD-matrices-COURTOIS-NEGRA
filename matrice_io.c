@@ -65,25 +65,21 @@ MatErreur mat_ecrire(FILE *f, const Matrice *m)
 
     for (int i=0; i < m->nb_lignes; i++){
         for (int j=0; j < m->nb_colonnes; j++){
-            if (fprintf(f, j == 0 ? "%d" : " %d", m->coef[i][j] < 0))
+            if (fprintf(f, j == 0 ? "%d" : " %d", m->coef[i][j]) < 0)
                 return MAT_ERR_ECRITURE;
         }
 
         if ( fputc('\n', f) == EOF )
             return MAT_ERR_ECRITURE;
+
+        
     }
-    
-                
-            
-
-    
-
-
-    /* FOURNI : forcer l'écriture du tampon et détecter une erreur. */
     if (fflush(f) == EOF)
         return MAT_ERR_ECRITURE;
-    return MAT_OK;
-}
+
+    return MAT_OK; 
+}        
+
 
 MatErreur mat_lire(FILE *f, Matrice *res)
 {
@@ -105,9 +101,6 @@ MatErreur mat_lire(FILE *f, Matrice *res)
     if ( 1 > nb_lignes || nb_lignes > MAT_DIM_MAX || 1 > nb_colonnes || nb_colonnes > MAT_DIM_MAX )
         return MAT_ERR_FORMAT;
 
-
-
-
     
     Matrice tmp;
     err = mat_allouer(&tmp, nb_lignes, nb_colonnes);
@@ -122,15 +115,7 @@ MatErreur mat_lire(FILE *f, Matrice *res)
                 return err;
             }
         }
-    }
-    
-                
-
-
-    
-
-
-    
+    }    
     *res = tmp;  
     return MAT_OK;
 

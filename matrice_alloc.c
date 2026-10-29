@@ -38,7 +38,7 @@ MatErreur mat_allouer(Matrice *res, int nb_lignes, int nb_colonnes)
     *res = MATRICE_VIDE;
  
     if ( 1 > nb_lignes || nb_lignes > MAT_DIM_MAX || 1 > nb_colonnes || nb_colonnes > MAT_DIM_MAX )
-        return MATT_ERR_ARGUMENT;
+        return MAT_ERR_ARGUMENT;
     
     /* (1.c) À COMPLÉTER : si nb_lignes ou nb_colonnes n'est pas compris
      *       entre 1 et MAT_DIM_MAX, renvoyer MAT_ERR_ARGUMENT.          */
@@ -80,7 +80,7 @@ void mat_detruire(Matrice *m)
         return;
 
     if (m->coef != NULL){
-        for (i=0; i < m->nb_lignes; i++){
+        for (int i=0; i < m->nb_lignes; i++){
             free(m->coef[i]);
         }
 
