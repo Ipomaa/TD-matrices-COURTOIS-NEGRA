@@ -82,18 +82,21 @@ _À rédiger._
 - 1.a:
 ```c
 case MAT_ERR_DIMENSIONS: return "dimensions incompatibles";
-case MAT_ERR_DEPASSEMENT: return "depassement arithmetique";```
+case MAT_ERR_DEPASSEMENT: return "depassement arithmetique";
+```
 - 1.b:
 ```c
 return m != NULL
     && m->coef != NULL
     && m->nb_lignes >= 1 && m->nb_lignes <= MAT_DIM_MAX
-    && m->nb_colonnes >= 1 && m->nb_colonnes <= MAT_DIM_MAX;```
+    && m->nb_colonnes >= 1 && m->nb_colonnes <= MAT_DIM_MAX;
+```
 -1.c:
 ```c
 if (nb_lignes < 1 || nb_lignes > MAT_DIM_MAX
     || nb_colonnes < 1 || nb_colonnes > MAT_DIM_MAX)
-    return MAT_ERR_ARGUMENT;```
+    return MAT_ERR_ARGUMENT;
+```
 -1.d:
 ```c
 for (int i = 0; i < nb_lignes; i++) {
@@ -106,14 +109,16 @@ for (int i = 0; i < nb_lignes; i++) {
         free(coef);
         return MAT_ERR_ALLOCATION;
     }
-}```
+}
+```
 -1.e: 
 ```c
 res->coef = coef;
 res->nb_lignes = nb_lignes;
 res->nb_colonnes = nb_colonnes;
 
-return MAT_OK;```
+return MAT_OK;
+```
 -1.f:
 ```c
 if (m->coef != NULL) {
@@ -121,7 +126,8 @@ if (m->coef != NULL) {
         free(m->coef[i]);
 
     free(m->coef);
-}```
+}
+```
  A la compilation tout marche très bien et on reçoit " Bilan : 16 / 16 verifications reussies. ". Et valgrind affiche bien " All heap blocks were freed ".
 
 
