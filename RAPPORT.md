@@ -291,9 +291,60 @@ return MAT_OK;
 
 **-Q5.1 :** Non le le paramètre const Matrice *a n'empêche pas d'écrire a->coef[0][0] = 7. const protège la structure Matrice et fait en sorte qu'on ne puisse pas directement modifier ses champs à travers a. Mais comme coef est un pointeur vers un tableau de pointeurs vers des entiers, le const ne protège pas les valeurs pointées. L'instruction reste autorisée. Pour refuser cette affectation, il faudrait aussi déclarer les coefficients comme des entiers constants avec un type adpaté comme const int * const *.
 
-**-Q5.2 :** 
+**-Q5.2 :** On refuse l'appel mat_additionner(&a, &b, &a) car la fonction commence par mettre la matrice résultat à l'état vide. Ca veut dire qu'on perdrait les données de la matrice a d'entrée. On aurait donc plus les données nécessaire pour faire le calcul. 
+
+**-Q5.3 :** Pour multiplier une matrice de dimensions n*p par une matrice de dimensions p *q, chaque coefficient du résultat nécessite p multiplications. Comme la matrice résultat contient n *q coefficients, le nombre total de multiplications est donc n * p * q.
+Pour deux matrices de dimensions 1000 * 1000, cela représente 1000 * 1000 * 1000, soit 1 milliard de multiplications.
+
+**-Q5.4 :** Cela ne suffit pas car on ne sait pas ce que va provoquer le dépassement de capacité. Même si on teste s < a le résultat n'est pas fiable car il y a déjà eu le dépassement. Par conséquent, pour pallier ce problème, on utilise d'abord un type plus grand que les int pour faire le calcul et ensuite on vérifie si on peut utiliser int. 
 
 
 ## 5. Exercice 4 : démonstration complète
 
-_À rédiger._
+### Dans l'exercice 4, on veut assembler les modules dans un programme qui lit deux matrices, calcule, affiche et enregistre le résultat. Il traite aussi proprement chaque erreur.
+
+- Nous avons rajouté comme code :
+
+**- 4.a :** 
+```c
+mat_afficher("A", &a);
+mat_afficher("B", &b);
+```
+**- 4.b :**
+```c
+MatErreur err = addition ? mat_additionner(&a, &b, &r)
+                         : mat_multiplier(&a, &b, &r);
+
+if (err != MAT_OK) {
+    fprintf(stderr, "Erreur : calcul impossible : %s ",
+            mat_message_erreur(err));
+
+    fprintf(stderr, "(A : %d x %d, B : %d x %d)\n",
+            a.nb_lignes, a.nb_colonnes, b.nb_lignes, b.nb_colonnes);
+
+    goto nettoyage;
+}
+```
+
+**- 4.c :**
+```c
+mat_afficher(addition ? "R = A + B" : "R = A x B", &r);
+```
+**- 4.d :**
+```c
+printf("Résultat enregistré dans \"%s\".\n", argv[4]);
+statut = EXIT_SUCCESS;
+```
+
+A la compilation tout marche très bien et on obtient l'affichage attendu. De plus, il n'y a pas de fuite repérée avec valgrind.
+
+
+### Questions :
+
+**-Q6.1 :** Ces deux parties du programme ne font pas la même chose.
+En effet, mat_lire lit les données et renvoie un code d'erreur si quelque chose se passe mal. En revanche, main.c utilise cette bibliothèque. Il décide comment afficher les erreurs à l'utilisateur. mat_lire c'est la bibliothèque, son rôle c'est uniquementde réaliser la lecture et de renvoyer un message d'erreur si y'a un problème. On utilise jamais directement la bibliothèque.
+
+**-Q6.2 :** Le résultat de fclose est testé dans sauvegarder car il peut rester temporairement des données dans un tampon mémoire avant d'être réellement envoyées au fichier. Il peut donc y avoir une erreur qui survient au moment de la fermeture du fichier. En revanche, dans charger, les erreurs de lecture sont normalement détectées grace à ferror. On a donc pas besoin de tester fclose dans cette fonction.
+
+**-Q6.3 :** Dans le scénario 8, a et b ont bien été alloué et r le calcul des deux aussi. Donc même si l'enregistrement échoue les trois matrices doivent être libérées pour ne pas avoir de fuites de mémoire. Ce qui est fait grace à nettoyage qui appelle mat_detruire sur r, a et b. 
+
