@@ -78,20 +78,25 @@ Un programme de démonstration (`main.c`) utilise ces modules : il lit deux matr
 _À rédiger._
 ### Dans l'exercice 1, on a créer et détruit une matrice de taille quelconques sur le tas. Et ensuite, la libérer sans fuite.
 
-- Nous avons rajouté comme code pour 1.a:
-'case MAT_ERR_DIMENSIONS: return "dimensions incompatibles";
-case MAT_ERR_DEPASSEMENT: return "depassement arithmetique";'
+- Nous avons rajouté comme code pour :
+- 1.a:
+```c
+case MAT_ERR_DIMENSIONS: return "dimensions incompatibles";
+case MAT_ERR_DEPASSEMENT: return "depassement arithmetique";```
 - 1.b:
-'return m != NULL
+```c
+return m != NULL
     && m->coef != NULL
     && m->nb_lignes >= 1 && m->nb_lignes <= MAT_DIM_MAX
-    && m->nb_colonnes >= 1 && m->nb_colonnes <= MAT_DIM_MAX;'
+    && m->nb_colonnes >= 1 && m->nb_colonnes <= MAT_DIM_MAX;```
 -1.c:
-'if (nb_lignes < 1 || nb_lignes > MAT_DIM_MAX
+```c
+if (nb_lignes < 1 || nb_lignes > MAT_DIM_MAX
     || nb_colonnes < 1 || nb_colonnes > MAT_DIM_MAX)
-    return MAT_ERR_ARGUMENT;'
+    return MAT_ERR_ARGUMENT;```
 -1.d:
-'for (int i = 0; i < nb_lignes; i++) {
+```c
+for (int i = 0; i < nb_lignes; i++) {
     coef[i] = mat_calloc((size_t)nb_colonnes, sizeof *coef[i]);
 
     if (coef[i] == NULL) {
@@ -101,20 +106,22 @@ case MAT_ERR_DEPASSEMENT: return "depassement arithmetique";'
         free(coef);
         return MAT_ERR_ALLOCATION;
     }
-}'
+}```
 -1.e: 
-'res->coef = coef;
+```c
+res->coef = coef;
 res->nb_lignes = nb_lignes;
 res->nb_colonnes = nb_colonnes;
 
-return MAT_OK;'
+return MAT_OK;```
 -1.f:
-'if (m->coef != NULL) {
+```c
+if (m->coef != NULL) {
     for (int i = 0; i < m->nb_lignes; i++)
         free(m->coef[i]);
 
     free(m->coef);
-}'
+}```
  A la compilation tout marche très bien et on reçoit " Bilan : 16 / 16 verifications reussies. ". Et valgrind affiche bien " All heap blocks were freed ".
 
 
@@ -128,7 +135,7 @@ return MAT_OK;'
 
  -Q3.4: mat_allouer commence par *res = MATRICE_VIDE car on veut être sûr d'avoir une allocation qui n'échoue pas. Sans initialisation de res, on est pas sûr que res ne contient pas d'anciennes valeurs mémoires. En l'initialisant, on a plus de doute et coef vaut NULL, nb_lignes et nb_colonnes sont remis à zéro. 
 
- 
+
 
 ## 3. Exercice 2 : entrées-sorties
 
