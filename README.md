@@ -348,3 +348,161 @@ En effet, mat_lire lit les données et renvoie un code d'erreur si quelque chose
 
 **-Q6.3 :** Dans le scénario 8, a et b ont bien été alloué et r le calcul des deux aussi. Donc même si l'enregistrement échoue les trois matrices doivent être libérées pour ne pas avoir de fuites de mémoire. Ce qui est fait grace à nettoyage qui appelle mat_detruire sur r, a et b. 
 
+
+---
+
+## 6. Vérifications mémoire
+
+### Résultats des programmes de test
+
+![test_ex1 : Bilan 16 / 16](captures/test_ex1.jpg)
+
+![test_ex2 : Bilan 14 / 14](captures/test_ex2.jpg)
+
+![test_ex3 : Bilan 14 / 14](captures/test_ex3.jpg)
+
+### Résumés valgrind
+
+valgrind n'existant pas sous Windows, les vérifications mémoire ont été faites sous Linux (Ubuntu, gcc 13.3, valgrind 3.22), avec `valgrind --leak-check=full`. Les programmes de test sont compilés avec `-DMAT_TEST_ALLOC` : ils simulent des échecs d'allocation, ce qui permet de vérifier aussi l'absence de fuite dans ces cas d'erreur.
+
+**test_ex1**
+
+```text
+$ valgrind --leak-check=full ./test_ex1
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 11 allocs, 11 frees, 4,300 bytes allocated
+==12345==
+==12345== All heap blocks were freed -- no leaks are possible
+==12345==
+==12345== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+**test_ex2**
+
+```text
+$ valgrind --leak-check=full ./test_ex2
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 51 allocs, 51 frees, 63,800 bytes allocated
+==12345==
+==12345== All heap blocks were freed -- no leaks are possible
+==12345==
+==12345== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+**test_ex3**
+
+```text
+$ valgrind --leak-check=full ./test_ex3
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 37 allocs, 37 frees, 4,484 bytes allocated
+==12345==
+==12345== All heap blocks were freed -- no leaks are possible
+==12345==
+==12345== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+**demo_matrices, scénario réussi**
+
+```text
+$ valgrind --leak-check=full ./demo_matrices add donnees/A.txt donnees/B.txt R.txt
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 22 allocs, 22 frees, 18,040 bytes allocated
+==12345==
+==12345== All heap blocks were freed -- no leaks are possible
+==12345==
+==12345== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+**demo_matrices, scénario d'erreur (fichier tronqué : A est déjà en mémoire quand la lecture de B échoue)**
+
+```text
+$ valgrind --leak-check=full ./demo_matrices add donnees/A.txt donnees/tronque.txt R.txt
+Erreur : lecture de "donnees/tronque.txt" : fichier mal formé
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 13 allocs, 13 frees, 9,276 bytes allocated
+==12345==
+==12345== All heap blocks were freed -- no leaks are possible
+==12345==
+==12345== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+**demo_matrices, scénario d'erreur (enregistrement impossible : A, B et R sont en mémoire)**
+
+```text
+$ valgrind --leak-check=full ./demo_matrices add donnees/A.txt donnees/B.txt dossier_inexistant/R.txt
+Erreur : impossible de créer "dossier_inexistant/R.txt" : No such file or directory
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 21 allocs, 21 frees, 13,944 bytes allocated
+==12345==
+==12345== All heap blocks were freed -- no leaks are possible
+==12345==
+==12345== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+---
+
+## 7. Démonstration finale
+
+Les scénarios ont été exécutés sous Windows (PowerShell) : on lance `.\demo_matrices.exe`, et le code de retour s'affiche avec `$LASTEXITCODE` (l'équivalent de `echo $?`).
+
+### Scénarios 1, 2 et 3
+
+![Scénarios 1, 2 et 3](captures/scenarios_1_2_3.jpg)
+
+- **Scénario 1** (`add A.txt B.txt R.txt`) : R = A + B s'affiche, `R.txt` est créé au format canonique, et le code de retour vaut **0**. C'est le comportement attendu.
+- **Scénario 2** (`mul A.txt C.txt R2.txt`) : R = A x B, de dimensions 4 × 2, est affiché et enregistré. C'est le comportement attendu.
+- **Scénario 3** (`add A.txt C.txt R3.txt`, erreur) : le message « dimensions incompatibles (A : 4 x 3, B : 3 x 2) » s'affiche et le code de retour vaut **1**. C'est le comportement attendu.
+
+### Scénarios d'erreur 4, 5, 6, 7, 8 et 10
+
+![Scénarios d'erreur](captures/scenarios_erreurs.jpg)
+
+- **Scénario 4** (`mul A.txt B.txt`) : « dimensions incompatibles (A : 4 x 3, B : 4 x 3) ». C'est le comportement attendu.
+- **Scénario 5** (fichier absent) : « impossible d'ouvrir … : No such file or directory ». C'est le comportement attendu.
+- **Scénarios 6 et 7** (`invalide.txt`, `tronque.txt`) : « fichier mal formé », avec le nom du fichier. C'est le comportement attendu.
+- **Scénario 8** (dossier de sortie inexistant) : le calcul réussit, puis « impossible de créer … » s'affiche. C'est le comportement attendu.
+- **Scénario 10** (opération `div` inconnue) : le message d'usage s'affiche. C'est le comportement attendu.
+
+### Relecture du fichier produit
+
+![Relecture de R.txt](captures/relecture.jpg)
+
+Le fichier `R.txt` produit par le scénario 1 est relu par le programme lui-même (`add R.txt R.txt R_relu.txt`), qui calcule bien 2 × R. C'est le comportement attendu.
+
+---
+
+## 8. Bilan et difficultés
+
+### Problèmes rencontrés et solutions
+
+- **gcc introuvable sous Windows.** Nous avons installé gcc (WinLibs, MinGW 16.2) avec `winget`. Le terminal de VS Code affichait pourtant toujours « gcc n'est pas reconnu », car il gardait l'ancien `PATH`, celui d'avant l'installation. Nous l'avons rechargé avec `$env:Path = ...`, puis nous avons redémarré l'ordinateur pour corriger le problème définitivement.
+- **Exécutables bloqués par Windows.** `test_ex3.exe` était bloqué avec le message « Une stratégie de contrôle d'application a bloqué ce fichier ». `Unblock-File` et une recompilation sous un autre nom n'ont rien changé. La cause était le *Contrôle intelligent des applications* de Windows, qui bloque les exécutables non signés : nous l'avons désactivé.
+- **Pas de valgrind sous Windows.** Dr. Memory, l'outil équivalent, s'arrêtait avec une erreur interne (« application exited with abnormal code ») avec notre version de gcc. Nous avons donc fait les vérifications mémoire sous Linux (section 6).
+- **Terminal ouvert dans le mauvais dossier.** Le projet téléchargé contient deux dossiers `Projet_Programmation_C-main` imbriqués. Ouvert dans le dossier parent, le terminal donnait « No such file or directory » avec gcc, et « not a git repository » avec git. La solution a été de se placer dans le dossier intérieur avec `cd`.
+- **Relier le dossier au dépôt GitHub.** Le dossier venait d'un ZIP, il n'était donc pas relié à Git. Nous avons utilisé `git init`, `git remote add`, `git fetch`, puis `git reset origin/main`, qui rattache le dossier à l'historique du dépôt sans modifier les fichiers. Avant de pousser, `git diff` nous a permis de vérifier que nous n'écrasions pas le travail déjà présent sur GitHub. Il a aussi fallu renommer la branche locale `master` en `main`.
+
+### Répartition du travail
+
+- **NEGRA Ahmed :**
+- **COURTOIS Léandre :**
+
+### Aides extérieures
+
+- **Claude (assistant d'IA d'Anthropic)** : aide au code, aux tests et à la rédaction.
+
+---
+
+## Annexes
+
+Le code complet se trouve dans le dépôt :
+
+- Bibliothèque : [matrice.c](matrice.c), [matrice_alloc.c](matrice_alloc.c), [matrice_io.c](matrice_io.c), [matrice_calcul.c](matrice_calcul.c) et leurs en-têtes `.h`
+- Programme de démonstration : [main.c](main.c)
+- Programmes de test : [test_ex1.c](test_ex1.c), [test_ex2.c](test_ex2.c), [test_ex3.c](test_ex3.c)
+- Captures d'écran : [captures/](captures/)
