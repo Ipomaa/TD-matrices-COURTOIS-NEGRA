@@ -19,6 +19,10 @@
 3. [Exercice 2 : entrées-sorties](#3-exercice-2--entrées-sorties)
 4. [Exercice 3 : calcul matriciel](#4-exercice-3--calcul-matriciel)
 5. [Exercice 4 : démonstration complète](#5-exercice-4--démonstration-complète)
+6. [Vérifications mémoire](#6-utilisation-valgrind)
+7. [Démonstration finale](#7-résultat-programme-fini)
+8. [Bilan et difficultés](#8-difficultés-rencontrés)
+9. [Annexes]
 
 ---
 
@@ -494,7 +498,7 @@ Le fichier `R.txt` produit par le scénario 1 est relu par le programme lui-mêm
 
 ### Aides extérieures
 
-- **Claude (assistant d'IA d'Anthropic)** : aide au code, aux tests et à la rédaction.
+- **Claude (assistant d'IA d'Anthropic)** : aide à la résolution des problèmes rencontrés. Donc utilisation pour compiler, faire les tests etc. Une légère aide au code.
 
 ---
 
